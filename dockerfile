@@ -6,7 +6,7 @@ WORKDIR /app
 # ---- Dependencies ----
 FROM base AS dependencies  
 COPY gunicorn_app/requirements.txt ./
-COPY app.service /etc/systemd/system/
+COPY nginx/app.service /etc/systemd/system/
 # install app dependencies
 #RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
@@ -27,7 +27,7 @@ WORKDIR /app
 RUN apt-get update \
     && apt-get install -y apt-utils nginx
 
-COPY app /etc/nginx/sites-available/
+COPY nginx/app /etc/nginx/sites-available/
 RUN ln -s /etc/nginx/sites-available/app /etc/nginx/sites-enabled
 
 COPY --from=dependencies /app/requirements.txt ./
@@ -35,7 +35,7 @@ COPY --from=dependencies /root/.cache /root/.cache
 
 
 #RUN mkdir /etc/systemd/system/app.service
-
+EXPOSE 8080
 # Install app dependencies
 RUN pip install -r requirements.txt
 COPY --from=build /app/ ./
